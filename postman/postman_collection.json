@@ -1,0 +1,398 @@
+{
+	"info": {
+		"_postman_id": "1ce82d8d-0621-4ae4-82d9-157010aa65bb",
+		"name": "Chat API (Laravel 12) – Test Collection",
+		"description": "End-to-end testing flow for the Chat API (Laravel 12 + Sanctum).\n\nIMPORTANT: After each registration, open Mailpit (http://localhost:8025) and click the email verification link for that user. \nLogin requires a verified email.\n",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "8879678",
+		"_collection_link": "https://ferling.postman.co/workspace/My-Workspace~ace541f7-bec7-438c-8fed-b27575de1c5b/collection/8879678-1ce82d8d-0621-4ae4-82d9-157010aa65bb?action=share&source=collection_link&creator=8879678"
+	},
+	"item": [
+		{
+			"name": "01 - Register Alice",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{alice_name}}\",\n  \"email\": \"{{alice_email}}\",\n  \"password\": \"{{alice_password}}\",\n  \"password_confirmation\": \"{{alice_password}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/register",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"register"
+					]
+				},
+				"description": "Registers Alice and triggers email verification email. Open Mailpit and verify before login."
+			},
+			"response": []
+		},
+		{
+			"name": "02 - Register Bob",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{bob_name}}\",\n  \"email\": \"{{bob_email}}\",\n  \"password\": \"{{bob_password}}\",\n  \"password_confirmation\": \"{{bob_password}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/register",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"register"
+					]
+				},
+				"description": "Registers Bob and triggers email verification email. Open Mailpit and verify before login."
+			},
+			"response": []
+		},
+		{
+			"name": "03 - Login Alice",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"pm.test(\"Login success\", function () {",
+							"  pm.response.to.have.status(200);",
+							"  var data = pm.response.json();",
+							"  pm.environment.set(\"token_alice\", data.token);",
+							"  if (data.user && data.user.id) { pm.environment.set(\"alice_id\", data.user.id); }",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"{{alice_email}}\",\n  \"password\": \"{{alice_password}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"login"
+					]
+				},
+				"description": "Requires Alice to be email-verified in Mailpit."
+			},
+			"response": []
+		},
+		{
+			"name": "04 - Login Bob",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"pm.test(\"Login success\", function () {",
+							"  pm.response.to.have.status(200);",
+							"  var data = pm.response.json();",
+							"  pm.environment.set(\"token_bob\", data.token);",
+							"  if (data.user && data.user.id) { pm.environment.set(\"bob_id\", data.user.id); }",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"{{bob_email}}\",\n  \"password\": \"{{bob_password}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"login"
+					]
+				},
+				"description": "Requires Bob to be email-verified in Mailpit."
+			},
+			"response": []
+		},
+		{
+			"name": "05 - List Active Users (Alice)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token_alice}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/users?per_page=10",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"users"
+					],
+					"query": [
+						{
+							"key": "per_page",
+							"value": "10"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "06 - Send Friend Request (Alice ➜ Bob)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token_alice}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"user_id\": \"{{bob_id}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/friends/send",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"friends",
+						"send"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "07 - Accept Friend Request (Bob accepts Alice)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token_bob}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"user_id\": \"{{alice_id}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/friends/accept",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"friends",
+						"accept"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "08 - List Friends (Alice)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token_alice}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/friends",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"friends"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "09 - Send Message (Alice ➜ Bob)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token_alice}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"receiver_id\": \"{{bob_id}}\",\n  \"body\": \"{{message_text}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/messages",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "10 - Get Conversation (Bob with Alice)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token_bob}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/messages/{{alice_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"messages",
+						"{{alice_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "11 - Logout Alice",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token_alice}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/logout",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "12 - Logout Bob",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token_bob}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/logout",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
