@@ -1,10 +1,20 @@
-# klónozás WSL fájlrendszerbe (pl. ~/dev/chatapi)
+# Tesztelési útmutató
 
-mkdir -p ~/dev && cd ~/dev
+# Előfeltételek
+
+Windows + WSL2
+Docker Desktop (WSL2 integrációval)
+
+Ez az útmutató windows-on WSL-ben lett tesztelve.
+Természetesen linuxon is mennie kell, docker és git kell.
+
+# Klónozás WSL fájlrendszerbe (pl. ~/dev/chatapi)
+
+cd ~/dev
 git clone https://github.com/jzsolti/chatapi.git
 cd chatapi
 
-# környezeti fájl
+# Környezeti fájl
 
 cp .env.example .env
 
@@ -24,14 +34,14 @@ docker run --rm \
 ./vendor/bin/sail artisan key:generate
 ./vendor/bin/sail artisan migrate
 
-# Mailpit Elérés
+# Mailpit Elérés email teszthez
 
 UI: http://localhost:8025
 
-# test
+# Feaure test
 
 ./vendor/bin/sail artisan test
 
-# Postman fájlok:
+# Postman collection és environment fájlok:
 
 /postman mappában
